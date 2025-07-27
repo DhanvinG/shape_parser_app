@@ -110,7 +110,7 @@ def _maybe_feature_vector(shape: Optional[str], params: Dict[str, float]
 ) -> Optional[List[float]]:
     if shape is None: return None
 
-    # map shape → integer code
+    # map shape
     shape_map = {
         "Cylinder":        0,
         "Cube":            1,
@@ -171,7 +171,7 @@ def parse_shape(text: str) -> ParseResult:
         f"coincident={n_coincident}, midpoint={n_midpoint}, point={n_point}"
     )
 
-    # --- numeric extraction (robust) ---
+    # numeric extraction (robust)
     diam = _first_field_after(R_DIAM_ANCHOR, t, "length")
     if diam:
         params["diameter"], s = diam; ev.append(s)
@@ -263,7 +263,7 @@ def parse_shape(text: str) -> ParseResult:
             _maybe_feature_vector("Cylinder",params)
         )
 
-    # Box family
+    # Box
     if n_line>=4 and n_parallel>=2 and n_perp>=1 and (len(distances)>=2 or ("length" in params and "width" in params)) and depth:
         l=params.get("length"); w=params.get("width"); h=params.get("height")
         if l is not None and w is not None:
@@ -289,60 +289,12 @@ def parse_shape(text: str) -> ParseResult:
 
     return ParseResult(None, {}, ev, None)
 
-# if __name__=="__main__":
-#     import sys,os
-#     targets=sys.argv[1:] if len(sys.argv)>1 else []
-#     files=[]
-#     for t in targets:
-#         if os.path.isdir(t):
-#             for r,_,fns in os.walk(t):
-#                 for fn in fns:
-#                     if fn.lower().endswith((".fs",".txt")):
-#                         files.append(os.path.join(r,fn))
-#         else:
-#             files.append(t)
-#     if not files and os.path.isdir("tests"):
-#         for fn in os.listdir("tests"):
-#             if fn.lower().endswith((".fs",".txt")):
-#                 files.append(os.path.join("tests",fn))
-#     if not files:
-#         print("Usage: python shape_parser.py <file_or_dir> [...]")
-#         sys.exit(0)
-
-#     for path in files:
-#         try:
-#             with open(path,"r",encoding="utf-8",errors="ignore") as f:
-#                 res=parse_shape(f.read())
-#             print(f"\n===== {path} =====")
-#             print("Detected shape:",res.shape)
-#             print("Parameters:",res.parameters)
-#             print("Feature vector:",res.feature_vector)
-#             fv=res.feature_vector
-#             if fv:
-#                 sid,p1,p2,p3 = fv
-#                 labels = ["Cylinder","Box","Sphere","Cone","Pyramid","Torus"]
-#                 print(f" → shape_id = {int(sid)} ({labels[int(sid)]})")
-#                 if res.shape=="Cylinder":
-#                     print(f" → radius = {p1}\n → height = {p2}")
-#                 elif res.shape in ("Cube","rectangular_prism","square","rectangle"):
-#                     print(f" → length = {p1}\n → width  = {p2}\n → height = {p3}")
-#                 elif res.shape=="Sphere":
-#                     print(f" → radius = {p1}")
-#                 elif res.shape=="Cone":
-#                     print(f" → base radius = {p1}\n → height      = {p2}")
-#                 elif res.shape=="Pyramid":
-#                     print(f" → base length = {p1}\n → base width  = {p2}\n → height      = {p3}")
-#                 elif res.shape=="Torus":
-#                     print(f" → major radius = {p1}\n → minor radius = {p2}")
-#         except Exception as e:
-#             print(f"Error reading {path}: {e}")
-
 if __name__ == "__main__":
     import streamlit as st
 
     st.title("Onshape ShapeParser 🛠️")
 
-    # Show the shape→ID mapping up front:
+    # Show the shape
     st.markdown("**Shape → ID mapping:**")
     st.write({
         "Cylinder":          0,
